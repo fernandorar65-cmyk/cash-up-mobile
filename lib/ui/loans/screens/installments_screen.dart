@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../di/datasource_providers.dart';
-import '../../../services/loans/models/installment.dart';
+import '../../../di/repository_providers.dart';
+import '../../../models/installment.dart';
 import '../widgets/installments_widgets.dart';
 
 final installmentsProvider = FutureProvider.family<List<Installment>, String>((ref, loanId) async {
-  return ref.watch(loansServiceProvider).installments(loanId);
+  return ref.watch(loansRepositoryProvider).installments(loanId);
 });
 
 final loanDetailForInstallmentsProvider =
     FutureProvider.family<Map<String, dynamic>, String>((ref, loanId) async {
-  return ref.watch(loansServiceProvider).loanDetail(loanId);
+  return ref.watch(loansRepositoryProvider).loanDetail(loanId);
 });
 
 class InstallmentsScreen extends ConsumerWidget {

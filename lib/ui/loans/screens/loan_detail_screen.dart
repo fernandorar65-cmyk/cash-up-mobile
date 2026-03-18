@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../di/datasource_providers.dart';
+import '../../../di/repository_providers.dart';
 import 'installments_screen.dart';
 import '../widgets/loan_detail_widgets.dart';
 
 final loanDetailProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, id) async {
-  return ref.watch(loansServiceProvider).loanDetail(id);
+  return ref.watch(loansRepositoryProvider).loanDetail(id);
 });
 
 class LoanDetailScreen extends ConsumerWidget {

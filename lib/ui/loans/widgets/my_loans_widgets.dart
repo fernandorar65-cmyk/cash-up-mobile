@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../services/loans/models/loan_summary.dart';
+import '../../../models/loan_summary.dart';
 
 class MyLoansPrimaryCtaButton extends StatelessWidget {
   const MyLoansPrimaryCtaButton({super.key, required this.onPressed});

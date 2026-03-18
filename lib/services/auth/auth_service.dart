@@ -1,7 +1,7 @@
 import '../../core/prefs/user_prefs.dart';
 import '../api/api_client.dart';
 import '../api/api_exception.dart';
-import 'models/login_response.dart';
+import '../../models/login_response.dart';
 
 class AuthService {
   AuthService({
@@ -30,11 +30,12 @@ class AuthService {
     );
 
     final data = res.data;
-    if (data == null) {
-      throw ApiException(message: 'Respuesta vacía del servidor', statusCode: res.statusCode);
-    }
-
-    final login = LoginResponse.fromJson(data);
+    final login = data == null
+        ? throw ApiException(
+            message: 'Respuesta vacía del servidor',
+            statusCode: res.statusCode,
+          )
+        : LoginResponse.fromJson(data);
     await _userPrefs.saveAccessToken(login.accessToken);
     return login;
   }
@@ -51,11 +52,14 @@ class AuthService {
     );
 
     final data = res.data;
-    if (data == null) {
-      throw ApiException(message: 'Respuesta vacía del servidor', statusCode: res.statusCode);
-    }
-
-    final newToken = (data['access_token'] ?? data['accessToken'] ?? data['token']) as String?;
+    final newToken = data == null
+        ? throw ApiException(
+            message: 'Respuesta vacía del servidor',
+            statusCode: res.statusCode,
+          )
+        : (data['access_token'] ??
+                data['accessToken'] ??
+                data['token']) as String?;
     if (newToken == null || newToken.isEmpty) {
       throw ApiException(message: 'Respuesta de refresh inválida');
     }
@@ -70,13 +74,18 @@ class AuthService {
     required String password,
     String? phone,
   }) async {
+    final payload = <String, dynamic>{
+      'name': name,
+      'email': email,
+      'password': password,
+    };
+    if (phone != null) {
+      payload['phone'] = phone;
+    }
     await _api.post<Object>(
       _registerPath,
       data: {
-        'name': name,
-        'email': email,
-        'password': password,
-        if (phone != null) 'phone': phone,
+        ...payload,
       },
     );
   }

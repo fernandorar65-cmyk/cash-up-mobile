@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../di/datasource_providers.dart';
+import '../../../di/repository_providers.dart';
 import '../../../services/api/api_exception.dart';
 import '../widgets/credit_request_fields.dart';
 import '../widgets/credit_request_submit_bar.dart';
@@ -85,7 +85,7 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
 
     setState(() => _isSubmitting = true);
     try {
-      await ref.read(creditRequestsServiceProvider).create(
+      await ref.read(creditRequestsRepositoryProvider).create(
             requestedAmount: requestedAmount,
             termMonths: termMonths,
             currency: _currency,
@@ -169,7 +169,7 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
                   border: Border.all(color: _border),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 18,
                       offset: const Offset(0, 10),
                     ),

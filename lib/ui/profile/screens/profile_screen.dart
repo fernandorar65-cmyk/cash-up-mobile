@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../auth/sign-in/screens/login_screen.dart';
-import '../../../di/datasource_providers.dart';
+import '../../../di/repository_providers.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -49,7 +49,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -67,8 +67,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     }
                   },
                   onLogout: () async {
-                    await ref.read(authServiceProvider).logout();
-                    if (!mounted) return;
+                    await ref.read(authRepositoryProvider).logout();
+                    if (!context.mounted) return;
                     context.go(LoginScreen.routePath);
                   },
                 ),

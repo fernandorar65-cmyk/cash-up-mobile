@@ -1,7 +1,7 @@
 import '../api/api_client.dart';
 
-import 'models/installment.dart';
-import 'models/loan_summary.dart';
+import '../../models/installment.dart';
+import '../../models/loan_summary.dart';
 
 class LoansService {
   LoansService({required ApiClient api}) : _api = api;

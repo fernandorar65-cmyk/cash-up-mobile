@@ -1,4 +1,4 @@
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/prefs/user_prefs.dart';
 import '../di/app_providers.dart';

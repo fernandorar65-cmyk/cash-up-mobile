@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../di/datasource_providers.dart';
-import '../../../services/loans/models/loan_summary.dart';
+import '../../../di/repository_providers.dart';
+import '../../../models/loan_summary.dart';
 import '../../credit-management/screens/credit_request_screen.dart';
 import 'loan_detail_screen.dart';
 import '../widgets/my_loans_widgets.dart';
 
 final myLoansProvider = FutureProvider<List<LoanSummary>>((ref) async {
-  return ref.watch(loansServiceProvider).myLoans();
+  return ref.watch(loansRepositoryProvider).myLoans();
 });
 
 class MyLoansScreen extends ConsumerWidget {
@@ -48,7 +48,7 @@ class MyLoansScreen extends ConsumerWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   itemCount: items.length + 2,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (context, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return MyLoansPrimaryCtaButton(

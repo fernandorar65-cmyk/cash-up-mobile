@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../di/datasource_providers.dart';
+import '../../../../di/repository_providers.dart';
 import '../../sign-in/screens/login_screen.dart';
 import '../../widgets/auth_brand_header.dart';
 import '../../widgets/auth_labeled_text_field.dart';
@@ -52,7 +52,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     setState(() => _isSubmitting = true);
     try {
-      await ref.read(authServiceProvider).register(
+      await ref.read(authRepositoryProvider).register(
             name: name,
             email: email,
             password: password,
@@ -95,7 +95,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../services/loans/models/installment.dart';
+import '../../../models/installment.dart';
 
 class InstallmentsHeader extends StatelessWidget {
   const InstallmentsHeader({

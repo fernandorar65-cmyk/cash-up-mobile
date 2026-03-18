@@ -41,7 +41,7 @@ class CreditRequestFields extends StatelessWidget {
         _FieldLabel(text: 'Moneda'),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: currency,
+          initialValue: currency,
           items: const [
             DropdownMenuItem(value: 'PEN', child: Text('Soles (PEN)')),
             DropdownMenuItem(value: 'USD', child: Text('Dólares (USD)')),

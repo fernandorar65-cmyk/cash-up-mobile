@@ -16,25 +16,24 @@ class CreditRequestsService {
     String? purpose,
     String? clientNotes,
   }) async {
+    final payload = <String, dynamic>{
+      'requestedAmount': requestedAmount,
+      'termMonths': termMonths,
+    };
+    if (currency != null) payload['currency'] = currency;
+    if (purpose != null) payload['purpose'] = purpose;
+    if (clientNotes != null) payload['clientNotes'] = clientNotes;
+
     final res = await _api.post<Map<String, dynamic>>(
       _createPath,
-      data: {
-        'requestedAmount': requestedAmount,
-        'termMonths': termMonths,
-        if (currency != null) 'currency': currency,
-        if (purpose != null) 'purpose': purpose,
-        if (clientNotes != null) 'clientNotes': clientNotes,
-      },
+      data: {...payload},
     );
 
     final data = res.data;
-    if (data == null) {
-      throw ApiException(
-        message: 'Respuesta vacía del servidor',
-        statusCode: res.statusCode,
-      );
-    }
-    return data;
+    return data ?? (throw ApiException(
+      message: 'Respuesta vacía del servidor',
+      statusCode: res.statusCode,
+    ));
   }
 
   Future<List<dynamic>> myRequests() async {
