@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../credit-management/screens/credit_request_screen.dart';
+import '../../loans/screens/my_loans_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     index: _currentIndex,
                     children: [
                       _HomeScoringView(),
-                      const CreditRequestScreen(),
+                      const MyLoansScreen(),
                       const ProfileScreen(),
                     ],
                   ),

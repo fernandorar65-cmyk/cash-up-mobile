@@ -1,14 +1,64 @@
 import 'package:cash_up/ui/home/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../di/datasource_providers.dart';
 import '../../sign-up/screens/register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   static const routeName = 'login';
   static const routePath = '/login';
+
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_isSubmitting) return;
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Completa correo y contraseña')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      await ref.read(authServiceProvider).login(
+            email: email,
+            password: password,
+          );
+
+      if (!mounted) return;
+      context.go(HomeScreen.routePath);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +118,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'tucorreo@cashup.com',
@@ -109,6 +160,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: 'Ingresa tu contraseña',
@@ -169,7 +221,10 @@ class LoginScreen extends StatelessWidget {
                     // Login button
                     SizedBox(
                       width: double.infinity,
-                      child: _LoginButton(),
+                      child: _LoginButton(
+                        isSubmitting: _isSubmitting,
+                        onPressed: _submit,
+                      ),
                     ),
                     const SizedBox(height: 16),
 
@@ -203,8 +258,11 @@ class LoginScreen extends StatelessWidget {
 
                     // Register footer
                     Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
+                        runSpacing: 0,
                         children: [
                           Text(
                             '¿Aún no tienes cuenta?',
@@ -282,15 +340,18 @@ class _FormHeader extends StatelessWidget {
 }
 
 class _LoginButton extends StatelessWidget {
-  const _LoginButton();
+  const _LoginButton({
+    required this.isSubmitting,
+    required this.onPressed,
+  });
+
+  final bool isSubmitting;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
-        // TODO: Lógica de login
-        context.go(HomeScreen.routePath);
-      },
+      onPressed: isSubmitting ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF0A202E),
         foregroundColor: Colors.white,
@@ -300,13 +361,22 @@ class _LoginButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
         ),
       ),
-      child: const Text(
-        'Iniciar sesión',
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
-        ),
-      ),
+      child: isSubmitting
+          ? const SizedBox(
+              height: 18,
+              width: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
+          : const Text(
+              'Iniciar sesión',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
     );
   }
 }

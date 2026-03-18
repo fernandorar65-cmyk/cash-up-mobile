@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkSession() async {
-    final token = await _prefs.getToken();
+    final token = await _prefs.getAccessToken();
 
     if (!mounted) return;
 

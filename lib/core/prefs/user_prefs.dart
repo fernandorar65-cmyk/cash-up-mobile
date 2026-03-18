@@ -1,32 +1,21 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserPrefs {
-  static const _tokenKey = 'token';
-  static const _refreshTokenKey = 'refresh_token';
+  static const _accessTokenKey = 'access_token';
 
-  Future<void> saveTokens({
-    required String token,
-    required String refreshToken,
-  }) async {
+  Future<void> saveAccessToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
-    await prefs.setString(_refreshTokenKey, refreshToken);
+    await prefs.setString(_accessTokenKey, token);
   }
 
-  Future<String?> getToken() async {
+  Future<String?> getAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return prefs.getString(_accessTokenKey);
   }
 
-  Future<String?> getRefreshToken() async {
+  Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_refreshTokenKey);
-  }
-
-  Future<void> clearTokens() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
-    await prefs.remove(_refreshTokenKey);
+    await prefs.remove(_accessTokenKey);
   }
 }
 

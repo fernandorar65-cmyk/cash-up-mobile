@@ -1,13 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../di/datasource_providers.dart';
 import '../../sign-in/screens/login_screen.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   static const routeName = 'register';
   static const routePath = '/register';
+
+  @override
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_isSubmitting) return;
+
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
+    final password = _passwordController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Completa nombre, correo y contraseña')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      await ref.read(authServiceProvider).register(
+            name: name,
+            email: email,
+            password: password,
+            phone: phone.isEmpty ? null : phone,
+          );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cuenta creada. Ahora inicia sesión.')),
+      );
+      context.go(LoginScreen.routePath);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +148,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _nameController,
                       textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
                         hintText: 'John Doe',
@@ -128,6 +191,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'tucorreo@cashup.com',
@@ -170,6 +234,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         hintText: '+51 999 999 999',
@@ -212,6 +277,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: 'Crea una contraseña segura',
@@ -252,9 +318,7 @@ class RegisterScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: Lógica de registro
-                        },
+                        onPressed: _isSubmitting ? null : _submit,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0A202E),
                           foregroundColor: Colors.white,
@@ -264,20 +328,31 @@ class RegisterScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text(
-                          'Crear cuenta',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
+                        child: _isSubmitting
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Crear cuenta',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 16),
 
                     Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
                         children: [
                           Text(
                             '¿Ya tienes una cuenta?',

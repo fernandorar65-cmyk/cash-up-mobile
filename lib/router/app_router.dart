@@ -6,6 +6,8 @@ import '../ui/auth/sign-in/screens/login_screen.dart';
 import '../ui/auth/sign-up/screens/register_screen.dart';
 import '../ui/credit-management/screens/credit_request_screen.dart';
 import '../ui/home/screens/home_screen.dart';
+import '../ui/loans/screens/installments_screen.dart';
+import '../ui/loans/screens/loan_detail_screen.dart';
 import '../ui/splash/screens/splash_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -41,6 +43,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: CreditRequestScreen.routeName,
         pageBuilder: (context, state) =>
             const MaterialPage(child: CreditRequestScreen()),
+      ),
+      GoRoute(
+        path: '/loans/:id',
+        name: LoanDetailScreen.routeName,
+        pageBuilder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return MaterialPage(child: LoanDetailScreen(loanId: id));
+        },
+      ),
+      GoRoute(
+        path: '/loans/:loanId/installments',
+        name: InstallmentsScreen.routeName,
+        pageBuilder: (context, state) {
+          final loanId = state.pathParameters['loanId'] ?? '';
+          return MaterialPage(child: InstallmentsScreen(loanId: loanId));
+        },
       ),
     ],
   );
