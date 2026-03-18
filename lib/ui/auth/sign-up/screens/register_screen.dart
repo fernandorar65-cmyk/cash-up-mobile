@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../di/datasource_providers.dart';
 import '../../sign-in/screens/login_screen.dart';
@@ -71,12 +71,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
+  static const _bg = Color(0xFFF6F7F8);
+  static const _primary = Color(0xFF0A202E);
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F8),
+      backgroundColor: _bg,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -86,7 +89,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.06),
@@ -97,257 +100,71 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            context.go(LoginScreen.routePath);
-                          },
-                          icon: const Icon(Icons.arrow_back),
-                          color: const Color(0xFF0A202E),
-                        ),
-                        Text(
-                          'Crear cuenta',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF0A202E),
-                          ),
-                        ),
-                        const SizedBox(width: 48),
-                      ],
+                    _AuthHeader(
+                      rightText: 'Registrarse',
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Text(
-                      'Regístrate en CashUp',
+                      'Crea tu cuenta',
                       style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF0A202E),
+                        fontWeight: FontWeight.w800,
+                        color: _primary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
-                      'Completa tus datos para solicitar tu préstamo.',
+                      'Completa tus datos para continuar.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.grey.shade600,
+                        height: 1.2,
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Nombre completo
-                    Text(
-                      'Nombre completo',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
+                    const SizedBox(height: 22),
+                    _LabeledTextField(
+                      label: 'Nombre completo',
                       controller: _nameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        hintText: 'John Doe',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A202E),
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
+                      hintText: 'John Doe',
+                      textInputAction: TextInputAction.next,
+                      prefixIcon: Icons.person_outline,
+                      keyboardType: TextInputType.name,
                     ),
                     const SizedBox(height: 16),
-
-                    // Email
-                    Text(
-                      'Correo electrónico',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
+                    _LabeledTextField(
+                      label: 'Correo electrónico',
                       controller: _emailController,
+                      hintText: 'tucorreo@cashup.com',
+                      textInputAction: TextInputAction.next,
+                      prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: 'tucorreo@cashup.com',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A202E),
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Teléfono
-                    Text(
-                      'Número de teléfono',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
+                    _LabeledTextField(
+                      label: 'Número de teléfono',
                       controller: _phoneController,
+                      hintText: '+51 999 999 999',
+                      textInputAction: TextInputAction.next,
+                      prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        hintText: '+51 999 999 999',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A202E),
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
+                      optional: true,
                     ),
                     const SizedBox(height: 16),
-
-                    // Password
-                    Text(
-                      'Contraseña',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
+                    _LabeledPasswordField(
+                      label: 'Contraseña',
                       controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: 'Crea una contraseña segura',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A202E),
-                            width: 1.5,
-                          ),
-                        ),
-                        suffixIcon: Icon(
-                          Icons.lock_outline,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
+                      hintText: 'Crea una contraseña segura',
                     ),
-                    const SizedBox(height: 24),
-
-                    // Register button
+                    const SizedBox(height: 22),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isSubmitting ? null : _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0A202E),
-                          foregroundColor: Colors.white,
-                          elevation: 4,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        child: _isSubmitting
-                            ? const SizedBox(
-                                height: 18,
-                                width: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Text(
-                                'Crear cuenta',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
+                      child: _PrimaryButton(
+                        text: 'Crear cuenta',
+                        isLoading: _isSubmitting,
+                        onPressed: _submit,
                       ),
                     ),
-                    const SizedBox(height: 16),
-
+                    const SizedBox(height: 18),
                     Center(
                       child: Wrap(
                         alignment: WrapAlignment.center,
@@ -361,9 +178,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             ),
                           ),
                           TextButton(
-                            onPressed: () {
-                              context.go(LoginScreen.routePath);
-                            },
+                            onPressed: () => context.go(LoginScreen.routePath),
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(horizontal: 6),
                               minimumSize: const Size(0, 0),
@@ -372,8 +187,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             child: const Text(
                               'Inicia sesión',
                               style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF0A202E),
+                                fontWeight: FontWeight.w700,
+                                color: _primary,
                               ),
                             ),
                           ),
@@ -385,6 +200,275 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthHeader extends StatelessWidget {
+  const _AuthHeader({required this.rightText});
+
+  final String rightText;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Row(
+          children: [
+            // Ícono simple para que se vea parecido al mock.
+            Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Color(0xFF0A202E),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              child: const Center(
+                child: Text(
+                  'C',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'CashUp',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF0A202E),
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        const Spacer(),
+        Text(
+          rightText,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0A202E),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LabeledTextField extends StatelessWidget {
+  const _LabeledTextField({
+    required this.label,
+    required this.controller,
+    required this.hintText,
+    required this.prefixIcon,
+    required this.keyboardType,
+    this.textInputAction = TextInputAction.next,
+    this.optional = false,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String hintText;
+  final IconData prefixIcon;
+  final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final bool optional;
+
+  @override
+  Widget build(BuildContext context) {
+    final labelText = optional ? '$label (Opcional)' : label;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          decoration: InputDecoration(
+            hintText: hintText,
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            prefixIcon: Icon(prefixIcon, color: Colors.grey.shade500),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              borderSide: BorderSide(color: Color(0xFF0A202E), width: 1.5),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LabeledPasswordField extends StatefulWidget {
+  const _LabeledPasswordField({
+    required this.label,
+    required this.controller,
+    required this.hintText,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String hintText;
+
+  @override
+  State<_LabeledPasswordField> createState() =>
+      _LabeledPasswordFieldState();
+}
+
+class _LabeledPasswordFieldState extends State<_LabeledPasswordField> {
+  bool _obscure = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: widget.controller,
+          obscureText: _obscure,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            suffixIcon: const Icon(
+              Icons.lock_outline,
+              color: Color(0xFF94A3B8),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              borderSide: BorderSide(color: Color(0xFF0A202E), width: 1.5),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {},
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 0),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              '¿Olvidaste tu contraseña?',
+              style: TextStyle(
+                color: Color(0xFF94A3B8),
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  const _PrimaryButton({
+    required this.text,
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  final String text;
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xFF0A202E),
+        borderRadius: BorderRadius.all(Radius.circular(14)),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.2),
+            blurRadius: 18,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: SizedBox(
+        height: 52,
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: isLoading
+              ? const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      text,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
