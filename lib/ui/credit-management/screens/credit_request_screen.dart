@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../di/datasource_providers.dart';
 
@@ -23,6 +24,9 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
   bool _isSubmitting = false;
 
   static const _primary = Color(0xFF0A202E);
+  static const _bg = Color(0xFFF6F7F8);
+  static const _muted = Color(0xFF64748B);
+  static const _border = Color(0xFFE2E8F0);
 
   @override
   void dispose() {
@@ -76,187 +80,196 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F8),
+      backgroundColor: _bg,
+      appBar: AppBar(
+        title: const Text('Nueva solicitud'),
+        backgroundColor: _primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            // Como esta pantalla vive dentro de `Home` (tab), forzamos volver al home
+            // para que el estado del tab vuelva al inicio (index 0).
+            // Si en el futuro navegas como ruta normal, `maybePop` también funcionará.
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).maybePop();
+              return;
+            }
+            // fallback: recargar home
+            context.go('/home');
+          },
+        ),
+      ),
       body: SafeArea(
         child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: DecoratedBox(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _border),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.06),
-                      blurRadius: 20,
+                      blurRadius: 18,
                       offset: const Offset(0, 10),
                     ),
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: _primary.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.edit_note, color: _primary),
+                      const Text(
+                        'Detalles del préstamo',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Complete los campos para procesar su crédito.',
+                        style: TextStyle(fontSize: 12, color: _muted, height: 1.25),
+                      ),
+                      const SizedBox(height: 14),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _FieldLabel(text: 'Monto del préstamo'),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _amountController,
+                                keyboardType: TextInputType.number,
+                                decoration: _input(
+                                  hintText: '0.00',
+                                  icon: Icons.payments_outlined,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _FieldLabel(text: 'Moneda'),
+                              const SizedBox(height: 8),
+                              DropdownButtonFormField<String>(
+                                value: _currency,
+                                items: const [
+                                  DropdownMenuItem(value: 'PEN', child: Text('Soles (PEN)')),
+                                  DropdownMenuItem(value: 'USD', child: Text('Dólares (USD)')),
+                                ],
+                                onChanged: (v) {
+                                  if (v == null) return;
+                                  setState(() => _currency = v);
+                                },
+                                decoration: _input(
+                                  hintText: '',
+                                  icon: Icons.currency_exchange,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _FieldLabel(text: 'Plazo (Meses)'),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _termController,
+                                keyboardType: TextInputType.number,
+                                decoration: _input(
+                                  hintText: 'Ej. 12',
+                                  icon: Icons.calendar_month_outlined,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _FieldLabel(text: 'Propósito'),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _purposeController,
+                                decoration: _input(
+                                  hintText: 'Ej. Remodelación, Estudios...',
+                                  icon: Icons.flag_outlined,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              _FieldLabel(text: 'Notas adicionales (Opcional)'),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _notesController,
+                                maxLines: 3,
+                                decoration: _input(
+                                  hintText: 'Añada información relevante...',
+                                  icon: Icons.notes_outlined,
+                                  alignLabelWithHint: true,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: _primary,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.18),
+                                blurRadius: 16,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: _isSubmitting ? null : _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  'Nueva solicitud',
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: _primary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Completa los datos para enviar tu solicitud.',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: const Color(0xFF64748B),
-                                    height: 1.2,
-                                  ),
-                                ),
+                                _isSubmitting
+                                    ? const SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Enviar solicitud',
+                                        style: TextStyle(fontWeight: FontWeight.w800),
+                                      ),
+                                const SizedBox(width: 10),
+                                const Icon(Icons.arrow_forward_rounded, size: 18),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(height: 1),
-                      const SizedBox(height: 16),
-                      _SectionLabel(text: 'Monto y plazo'),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: TextField(
-                              controller: _amountController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Monto',
-                                hintText: 'Ej: 1500',
-                                prefixIcon: const Icon(Icons.payments_outlined),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextField(
-                              controller: _termController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Meses',
-                                hintText: '12',
-                                prefixIcon: const Icon(Icons.calendar_month_outlined),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        value: _currency,
-                        items: const [
-                          DropdownMenuItem(value: 'PEN', child: Text('PEN')),
-                          DropdownMenuItem(value: 'USD', child: Text('USD')),
-                        ],
-                        onChanged: (v) {
-                          if (v == null) return;
-                          setState(() => _currency = v);
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Moneda',
-                          prefixIcon: const Icon(Icons.currency_exchange),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _SectionLabel(text: 'Información adicional (opcional)'),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _purposeController,
-                        decoration: InputDecoration(
-                          labelText: 'Propósito',
-                          hintText: 'Ej: capital de trabajo',
-                          prefixIcon: const Icon(Icons.flag_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _notesController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          labelText: 'Notas',
-                          hintText: 'Cuéntanos cualquier detalle importante…',
-                          alignLabelWithHint: true,
-                          prefixIcon: const Icon(Icons.notes_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _isSubmitting ? null : _submit,
-                          icon: _isSubmitting
-                              ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : const Icon(Icons.send_rounded),
-                          label: Text(_isSubmitting ? 'Enviando…' : 'Enviar solicitud'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _primary,
-                            foregroundColor: Colors.white,
-                            elevation: 4,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Text(
-                        'Recuerda: la aprobación la realiza el equipo de CashUp.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: const Color(0xFF94A3B8),
+                      const Text(
+                        'Al enviar esta solicitud, usted acepta nuestros\n'
+                        'términos y condiciones de procesamiento crediticio.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF94A3B8),
+                          height: 1.25,
                         ),
                       ),
                     ],
@@ -269,10 +282,37 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
       ),
     );
   }
+
+  InputDecoration _input({
+    required String hintText,
+    required IconData icon,
+    bool alignLabelWithHint = false,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      alignLabelWithHint: alignLabelWithHint,
+      filled: true,
+      fillColor: const Color(0xFFF8FAFC),
+      prefixIcon: Icon(icon, color: const Color(0xFF94A3B8)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _primary, width: 1.5),
+      ),
+    );
+  }
 }
 
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.text});
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel({required this.text});
 
   final String text;
 
@@ -283,7 +323,6 @@ class _SectionLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w800,
-        letterSpacing: 1.2,
         color: Color(0xFF0F172A),
       ),
     );
