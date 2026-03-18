@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../di/datasource_providers.dart';
+import '../../../services/api/api_exception.dart';
+import '../widgets/credit_request_fields.dart';
+import '../widgets/credit_request_submit_bar.dart';
 
 class CreditRequestScreen extends ConsumerStatefulWidget {
   const CreditRequestScreen({super.key});
@@ -37,6 +40,36 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
     super.dispose();
   }
 
+  Future<void> _showApiError(Object error) async {
+    if (!mounted) return;
+
+    String title = 'No se pudo enviar';
+    String message = 'Inténtalo nuevamente.';
+
+    if (error is ApiException) {
+      message = error.message;
+      if (error.statusCode == 401) {
+        message = 'Tu sesión expiró. Vuelve a iniciar sesión.';
+      }
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _submit() async {
     if (_isSubmitting) return;
 
@@ -61,18 +94,38 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
           );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Solicitud enviada correctamente')),
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Solicitud enviada'),
+            content: const Text(
+              'Tu solicitud de crédito fue enviada correctamente.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
 
       _amountController.clear();
       _purposeController.clear();
       _notesController.clear();
-    } catch (e) {
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      // Regresar a la vista anterior (Solicitudes/Mis créditos).
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        context.go('/home');
+      }
+    } catch (e) {
+      await _showApiError(e);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -143,134 +196,21 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
                       const SizedBox(height: 14),
                       Expanded(
                         child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _FieldLabel(text: 'Monto del préstamo'),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _amountController,
-                                keyboardType: TextInputType.number,
-                                decoration: _input(
-                                  hintText: '0.00',
-                                  icon: Icons.payments_outlined,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              _FieldLabel(text: 'Moneda'),
-                              const SizedBox(height: 8),
-                              DropdownButtonFormField<String>(
-                                value: _currency,
-                                items: const [
-                                  DropdownMenuItem(value: 'PEN', child: Text('Soles (PEN)')),
-                                  DropdownMenuItem(value: 'USD', child: Text('Dólares (USD)')),
-                                ],
-                                onChanged: (v) {
-                                  if (v == null) return;
-                                  setState(() => _currency = v);
-                                },
-                                decoration: _input(
-                                  hintText: '',
-                                  icon: Icons.currency_exchange,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              _FieldLabel(text: 'Plazo (Meses)'),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _termController,
-                                keyboardType: TextInputType.number,
-                                decoration: _input(
-                                  hintText: 'Ej. 12',
-                                  icon: Icons.calendar_month_outlined,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              _FieldLabel(text: 'Propósito'),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _purposeController,
-                                decoration: _input(
-                                  hintText: 'Ej. Remodelación, Estudios...',
-                                  icon: Icons.flag_outlined,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              _FieldLabel(text: 'Notas adicionales (Opcional)'),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _notesController,
-                                maxLines: 3,
-                                decoration: _input(
-                                  hintText: 'Añada información relevante...',
-                                  icon: Icons.notes_outlined,
-                                  alignLabelWithHint: true,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                            ],
+                          child: CreditRequestFields(
+                            amountController: _amountController,
+                            termController: _termController,
+                            purposeController: _purposeController,
+                            notesController: _notesController,
+                            currency: _currency,
+                            onCurrencyChanged: (v) {
+                              setState(() => _currency = v);
+                            },
                           ),
                         ),
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: _primary,
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.18),
-                                blurRadius: 16,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            onPressed: _isSubmitting ? null : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _isSubmitting
-                                    ? const SizedBox(
-                                        height: 18,
-                                        width: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                        ),
-                                      )
-                                    : const Text(
-                                        'Enviar solicitud',
-                                        style: TextStyle(fontWeight: FontWeight.w800),
-                                      ),
-                                const SizedBox(width: 10),
-                                const Icon(Icons.arrow_forward_rounded, size: 18),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Al enviar esta solicitud, usted acepta nuestros\n'
-                        'términos y condiciones de procesamiento crediticio.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Color(0xFF94A3B8),
-                          height: 1.25,
-                        ),
+                      CreditRequestSubmitBar(
+                        isSubmitting: _isSubmitting,
+                        onSubmit: _submit,
                       ),
                     ],
                   ),
@@ -283,48 +223,4 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
     );
   }
 
-  InputDecoration _input({
-    required String hintText,
-    required IconData icon,
-    bool alignLabelWithHint = false,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      alignLabelWithHint: alignLabelWithHint,
-      filled: true,
-      fillColor: const Color(0xFFF8FAFC),
-      prefixIcon: Icon(icon, color: const Color(0xFF94A3B8)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _border),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _border),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _primary, width: 1.5),
-      ),
-    );
-  }
-}
-
-class _FieldLabel extends StatelessWidget {
-  const _FieldLabel({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w800,
-        color: Color(0xFF0F172A),
-      ),
-    );
-  }
 }

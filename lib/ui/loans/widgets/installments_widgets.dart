@@ -7,12 +7,10 @@ class InstallmentsHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.nextDueText,
-    required this.remainingText,
   });
 
   final String title;
   final String nextDueText;
-  final String remainingText;
 
   @override
   Widget build(BuildContext context) {
@@ -59,23 +57,9 @@ class InstallmentsHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _HeaderMetric(
-                  label: 'PRÓXIMO VENCIMIENTO',
-                  value: nextDueText,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _HeaderMetric(
-                  label: 'RESTANTE',
-                  value: remainingText,
-                  valueEmphasis: true,
-                ),
-              ),
-            ],
+          _HeaderMetric(
+            label: 'PRÓXIMO VENCIMIENTO',
+            value: nextDueText,
           ),
         ],
       ),
@@ -87,12 +71,10 @@ class _HeaderMetric extends StatelessWidget {
   const _HeaderMetric({
     required this.label,
     required this.value,
-    this.valueEmphasis = false,
   });
 
   final String label;
   final String value;
-  final bool valueEmphasis;
 
   @override
   Widget build(BuildContext context) {
@@ -112,8 +94,8 @@ class _HeaderMetric extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: valueEmphasis ? 22 : 14,
-            fontWeight: valueEmphasis ? FontWeight.w900 : FontWeight.w700,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
             color: Colors.white,
           ),
         ),

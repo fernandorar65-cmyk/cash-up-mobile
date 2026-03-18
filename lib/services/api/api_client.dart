@@ -85,7 +85,6 @@ class ApiClient {
           handler.resolve(retryResponse);
           return;
         } catch (_) {
-          // si el retry falla, cae al flujo de logout
         }
       }
     }

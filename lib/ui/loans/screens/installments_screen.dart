@@ -75,7 +75,6 @@ class _Body extends StatelessWidget {
 
         final nextDue = _nextDueDate(sorted);
         final remainingCount = _remainingCount(sorted);
-        final remainingAmount = _remainingAmount(sorted);
 
         final title = loanDetail.maybeWhen(
           data: (d) => (d['name'] ?? d['productName'] ?? d['loanName'])?.toString(),
@@ -92,7 +91,6 @@ class _Body extends StatelessWidget {
             InstallmentsHeader(
               title: title ?? 'Línea de Crédito Personal',
               nextDueText: _formatDateShortEs(nextDue) ?? '-',
-              remainingText: _formatMoney(remainingAmount, currency: currency),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -142,20 +140,6 @@ class _Body extends StatelessWidget {
     return any ? count : null;
   }
 
-  static num? _remainingAmount(List<Installment> items) {
-    num sum = 0;
-    var any = false;
-    for (final it in items) {
-      final status = (it.status ?? '').toUpperCase();
-      if (status.contains('PAID') || status.contains('PAGADO')) {
-        any = true;
-        continue;
-      }
-      any = true;
-      sum += it.amount ?? 0;
-    }
-    return any ? sum : null;
-  }
 }
 class _InstallmentCard extends StatelessWidget {
   const _InstallmentCard({
