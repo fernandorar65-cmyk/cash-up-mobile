@@ -22,6 +22,8 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
   String _currency = 'PEN';
   bool _isSubmitting = false;
 
+  static const _primary = Color(0xFF0A202E);
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -74,6 +76,8 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7F8),
       body: SafeArea(
@@ -82,40 +86,97 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
-              child: Card(
-                elevation: 2,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Nueva solicitud',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0A202E),
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: _primary.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.edit_note, color: _primary),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Nueva solicitud',
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: _primary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Completa los datos para enviar tu solicitud.',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: const Color(0xFF64748B),
+                                    height: 1.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
-                      TextField(
-                        controller: _amountController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Monto solicitado',
-                          hintText: 'Ej: 1500',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _termController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Plazo (meses)',
-                          hintText: 'Ej: 12',
-                          border: OutlineInputBorder(),
-                        ),
+                      const Divider(height: 1),
+                      const SizedBox(height: 16),
+                      _SectionLabel(text: 'Monto y plazo'),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: TextField(
+                              controller: _amountController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: 'Monto',
+                                hintText: 'Ej: 1500',
+                                prefixIcon: const Icon(Icons.payments_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: _termController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: 'Meses',
+                                hintText: '12',
+                                prefixIcon: const Icon(Icons.calendar_month_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
@@ -128,42 +189,48 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
                           if (v == null) return;
                           setState(() => _currency = v);
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Moneda',
-                          border: OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.currency_exchange),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
+                      _SectionLabel(text: 'Información adicional (opcional)'),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: _purposeController,
-                        decoration: const InputDecoration(
-                          labelText: 'Propósito (opcional)',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: 'Propósito',
+                          hintText: 'Ej: capital de trabajo',
+                          prefixIcon: const Icon(Icons.flag_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _notesController,
                         maxLines: 3,
-                        decoration: const InputDecoration(
-                          labelText: 'Notas (opcional)',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: 'Notas',
+                          hintText: 'Cuéntanos cualquier detalle importante…',
+                          alignLabelWithHint: true,
+                          prefixIcon: const Icon(Icons.notes_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: ElevatedButton.icon(
                           onPressed: _isSubmitting ? null : _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0A202E),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          child: _isSubmitting
+                          icon: _isSubmitting
                               ? const SizedBox(
                                   height: 18,
                                   width: 18,
@@ -172,7 +239,24 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
-                              : const Text('Enviar solicitud'),
+                              : const Icon(Icons.send_rounded),
+                          label: Text(_isSubmitting ? 'Enviando…' : 'Enviar solicitud'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _primary,
+                            foregroundColor: Colors.white,
+                            elevation: 4,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Recuerda: la aprobación la realiza el equipo de CashUp.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: const Color(0xFF94A3B8),
                         ),
                       ),
                     ],
@@ -182,6 +266,25 @@ class _CreditRequestScreenState extends ConsumerState<CreditRequestScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1.2,
+        color: Color(0xFF0F172A),
       ),
     );
   }

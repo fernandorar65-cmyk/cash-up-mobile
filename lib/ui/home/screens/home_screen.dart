@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     context,
                     _currentIndex == 0
                         ? 'Tu Scoring Crediticio'
-                        : 'Solicitud de crédito',
+                        : 'Solicitudes de crédito',
                   ),
                 Expanded(
                   child: IndexedStack(
@@ -406,7 +406,7 @@ class _BottomNavBar extends StatelessWidget {
           ),
           _BottomNavItem(
             icon: Icons.credit_card,
-            label: 'Préstamo',
+            label: 'Solicitudes',
             selected: currentIndex == 1,
             onTap: () => onTap(1),
           ),
