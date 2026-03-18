@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../di/datasource_providers.dart';
 import '../../sign-up/screens/register_screen.dart';
+import '../../widgets/auth_brand_header.dart';
+import '../../widgets/auth_labeled_text_field.dart';
+import '../../widgets/auth_primary_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -90,7 +93,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header
-                    _FormHeader(theme: theme),
+                      AuthBrandHeader(
+                        rightText: 'Registrarse',
+                        onRightPressed: () => context.go(RegisterScreen.routePath),
+                      ),
                     const SizedBox(height: 16),
                     Text(
                       'Bienvenido de vuelta',
@@ -108,93 +114,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Email
-                    Text(
-                      'Correo electrónico',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
+                      AuthLabeledTextField(
+                        label: 'Correo electrónico',
+                        controller: _emailController,
                         hintText: 'tucorreo@cashup.com',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A202E),
-                            width: 1.5,
-                          ),
-                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
                       ),
-                    ),
                     const SizedBox(height: 16),
-                    // Password
-                    Text(
-                      'Contraseña',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
+                      AuthLabeledTextField(
+                        label: 'Contraseña',
+                        controller: _passwordController,
                         hintText: 'Ingresa tu contraseña',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF0A202E),
-                            width: 1.5,
-                          ),
-                        ),
+                        obscureText: true,
+                        textInputAction: TextInputAction.done,
                         suffixIcon: Icon(
                           Icons.lock_outline,
                           color: Colors.grey.shade500,
                         ),
                       ),
-                    ),
                     const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerRight,
@@ -221,10 +159,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Login button
                     SizedBox(
                       width: double.infinity,
-                      child: _LoginButton(
-                        isSubmitting: _isSubmitting,
-                        onPressed: _submit,
-                      ),
+                        child: AuthPrimaryButton(
+                          text: 'Iniciar sesión',
+                          isLoading: _isSubmitting,
+                          onPressed: _submit,
+                        ),
                     ),
                     const SizedBox(height: 16),
 
@@ -297,86 +236,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _FormHeader extends StatelessWidget {
-  const _FormHeader({
-    required this.theme,
-  });
-
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'CashUp',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF0A202E),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            context.go(RegisterScreen.routePath);
-          },
-          style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF0A202E),
-          ),
-          child: const Text(
-            'Registrarse',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _LoginButton extends StatelessWidget {
-  const _LoginButton({
-    required this.isSubmitting,
-    required this.onPressed,
-  });
-
-  final bool isSubmitting;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: isSubmitting ? null : onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF0A202E),
-        foregroundColor: Colors.white,
-        elevation: 4,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-      ),
-      child: isSubmitting
-          ? const SizedBox(
-              height: 18,
-              width: 18,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-          : const Text(
-              'Iniciar sesión',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
     );
   }
 }

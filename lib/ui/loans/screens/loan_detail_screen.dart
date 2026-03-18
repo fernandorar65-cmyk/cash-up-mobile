@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../di/datasource_providers.dart';
 import 'installments_screen.dart';
+import '../widgets/loan_detail_widgets.dart';
 
 final loanDetailProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, id) async {
   return ref.watch(loansServiceProvider).loanDetail(id);
@@ -19,7 +20,6 @@ class LoanDetailScreen extends ConsumerWidget {
   static const _bg = Color(0xFFF6F7F8);
   static const _primary = Color(0xFF0A202E);
   static const _muted = Color(0xFF64748B);
-  static const _border = Color(0xFFE2E8F0);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,52 +67,52 @@ class LoanDetailScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
-              _SummaryCard(
+              LoanDetailSummaryCard(
                 moneyText: money,
                 statusText: statusLabel,
                 statusColor: statusColor,
               ),
               const SizedBox(height: 16),
-              const _SectionTitle(text: 'INFORMACIÓN DEL PRÉSTAMO'),
+              const LoanDetailSectionTitle(text: 'INFORMACIÓN DEL PRÉSTAMO'),
               const SizedBox(height: 10),
-              _InfoCard(
+              LoanDetailInfoCard(
                 children: [
-                  _InfoRow(
+                  LoanDetailInfoRow(
                     label: 'ID del crédito',
                     value: idShort,
                     valueMaxLines: 1,
                   ),
-                  _InfoRow(
+                  LoanDetailInfoRow(
                     label: 'Tasa de Interés',
                     value: interestRate == null ? '-' : '${interestRate.toString()}%',
                   ),
-                  _InfoRow(
+                  LoanDetailInfoRow(
                     label: 'Plazo',
                     value: termMonths == null ? '-' : '$termMonths meses',
                   ),
-                  _InfoRow(
+                  LoanDetailInfoRow(
                     label: 'Tipo de Interés',
                     value: _prettyInterestType(interestType),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              const _SectionTitle(text: 'FECHAS'),
+              const LoanDetailSectionTitle(text: 'FECHAS'),
               const SizedBox(height: 10),
-              _InfoCard(
+              LoanDetailInfoCard(
                 children: [
-                  _InfoRow(
+                  LoanDetailInfoRow(
                     label: 'Fecha de creación',
                     value: _formatDateEs(createdAt),
                   ),
-                  _InfoRow(
+                  LoanDetailInfoRow(
                     label: 'Última actualización',
                     value: _formatDateEs(updatedAt),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              _BottomPrimaryButton(
+              LoanDetailPrimaryButton(
                 text: 'Ver cronograma de cuotas',
                 onPressed: () => context.push(InstallmentsScreen.routePath(loanId)),
               ),
@@ -207,225 +207,6 @@ class LoanDetailScreen extends ConsumerWidget {
     } catch (_) {
       return raw;
     }
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.moneyText,
-    required this.statusText,
-    required this.statusColor,
-  });
-
-  final String moneyText;
-  final String statusText;
-  final Color statusColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: LoanDetailScreen._border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      child: Column(
-        children: [
-          const Text(
-            'Monto Total',
-            style: TextStyle(
-              color: LoanDetailScreen._muted,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            moneyText,
-            style: const TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w900,
-              color: LoanDetailScreen._primary,
-              height: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'ESTADO: $statusText',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.0,
-                  color: statusColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w900,
-        letterSpacing: 1.4,
-        color: Color(0xFF94A3B8),
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: LoanDetailScreen._border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            children[i],
-            if (i != children.length - 1)
-              const Divider(height: 1, thickness: 1, color: LoanDetailScreen._border),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    this.valueMaxLines,
-  });
-
-  final String label;
-  final String value;
-  final int? valueMaxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: LoanDetailScreen._muted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(
-              value,
-              maxLines: valueMaxLines ?? 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: Color(0xFF0F172A),
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BottomPrimaryButton extends StatelessWidget {
-  const _BottomPrimaryButton({
-    required this.text,
-    required this.onPressed,
-  });
-
-  final String text;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: LoanDetailScreen._primary,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.18),
-              blurRadius: 16,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Text(
-            text,
-            style: const TextStyle(fontWeight: FontWeight.w800),
-          ),
-        ),
-      ),
-    );
   }
 }
 
